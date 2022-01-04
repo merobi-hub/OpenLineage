@@ -68,6 +68,9 @@ public class OpenLineageContext {
   /** Optional {@link QueryExecution} for runs that are Spark SQL queries. */
   @Default @NonNull Optional<QueryExecution> queryExecution = Optional.empty();
 
+  /** List of events that were previously emitted as part of this Spark job */
+  @Default @NonNull List<OpenLineage.RunEvent> previousEvents = new ArrayList<>();
+
   /**
    * Override the default Builder class to take an unwrapped {@link QueryExecution} argument, rather
    * than forcing the caller to wrap the {@link QueryExecution} in an {@link Optional}. The Spark

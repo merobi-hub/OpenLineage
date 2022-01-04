@@ -48,12 +48,20 @@ public class PlanUtils3 {
   public static void includeProviderFacet(
       TableCatalog catalog,
       Map<String, String> properties,
-      Map<String, OpenLineage.DefaultDatasetFacet> facets) {
+      Map<String, OpenLineage.DatasetFacet> facets) {
     Optional<TableProviderFacet> providerFacet =
         CatalogUtils3.getTableProviderFacet(catalog, properties);
-    if (providerFacet.isPresent()) {
-      facets.put("tableProvider", providerFacet.get());
-    }
+    providerFacet.ifPresent(tableProviderFacet -> facets.put("tableProvider", tableProviderFacet));
+  }
+
+  public static void includeVersionDatasetFacet(
+      OpenLineage openLineage,
+      TableCatalog catalog,
+      Identifier identifier,
+      Map<String, String> properties,
+      Map<String, OpenLineage.DatasetFacet> facets) {
+    CatalogUtils3.getDatasetVersion(catalog, identifier, properties)
+        .ifPresent(s -> facets.put("datasetVersion", openLineage.newDatasetVersionDatasetFacet(s)));
   }
 
   public static <D extends OpenLineage.Dataset> List<D> fromDataSourceV2Relation(
@@ -65,7 +73,7 @@ public class PlanUtils3 {
       DatasetFactory<D> datasetFactory,
       OpenLineageContext context,
       DataSourceV2Relation relation,
-      Map<String, OpenLineage.DefaultDatasetFacet> facets) {
+      Map<String, OpenLineage.DatasetFacet> facets) {
 
     if (relation.identifier().isEmpty()) {
       throw new IllegalArgumentException(
@@ -81,14 +89,22 @@ public class PlanUtils3 {
     Map<String, String> tableProperties = relation.table().properties();
 
     includeProviderFacet(tableCatalog, tableProperties, facets);
+
+    // Only include this event for non-start events.
+    if (context.getPreviousEvents().stream()
+        .allMatch(event -> event.getEventType().equals("START"))) {
+      includeVersionDatasetFacet(
+          context.getOpenLineage(), tableCatalog, identifier, tableProperties, facets);
+    }
+
     Optional<DatasetIdentifier> datasetIdentifier =
         PlanUtils3.getDatasetIdentifier(context, tableCatalog, identifier, tableProperties);
 
-    if (datasetIdentifier.isPresent()) {
-      return Collections.singletonList(
-          datasetFactory.getDataset(datasetIdentifier.get(), relation.schema(), facets));
-    } else {
-      return Collections.emptyList();
-    }
+    return datasetIdentifier
+        .map(
+            value ->
+                Collections.singletonList(
+                    datasetFactory.getDataset(value, relation.schema(), facets)))
+        .orElse(Collections.emptyList());
   }
 }

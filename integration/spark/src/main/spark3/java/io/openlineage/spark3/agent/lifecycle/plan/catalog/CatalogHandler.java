@@ -23,5 +23,10 @@ public interface CatalogHandler {
     return Optional.empty();
   }
 
+  default Optional<String> getDatasetVersion(
+      TableCatalog catalog, Identifier identifier, Map<String, String> properties) {
+    return Optional.empty();
+  }
+
   String getName();
 }

@@ -77,6 +77,11 @@ public class PlanUtils {
         .build();
   }
 
+  public static OpenLineage.DatasetVersionDatasetFacet versionFacet(
+      OpenLineage openLineage, String version) {
+    return openLineage.newDatasetVersionDatasetFacet(version);
+  }
+
   private static List<OpenLineage.SchemaDatasetFacetFields> transformFields(
       OpenLineage openLineage, StructField[] fields) {
     List<OpenLineage.SchemaDatasetFacetFields> list = new ArrayList<>();

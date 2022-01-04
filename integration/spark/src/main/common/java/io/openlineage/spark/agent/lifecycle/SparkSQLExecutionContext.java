@@ -58,7 +58,7 @@ public class SparkSQLExecutionContext implements ExecutionContext {
   private final OpenLineage openLineage =
       new OpenLineage(OpenLineageClient.OPEN_LINEAGE_CLIENT_URI);
 
-  private AtomicBoolean started = new AtomicBoolean(false);
+  private AtomicBoolean usingSqlEvents = new AtomicBoolean(false);
   private AtomicBoolean finished = new AtomicBoolean(false);
   private Optional<Integer> jobId = Optional.empty();
 
@@ -76,6 +76,7 @@ public class SparkSQLExecutionContext implements ExecutionContext {
 
   public void start(SparkListenerSQLExecutionStart startEvent) {
     log.debug("SparkListenerSQLExecutionStart - executionId: {}", startEvent.executionId());
+    usingSqlEvents.set(true);
     startEvent(startEvent.time());
   }
 
@@ -93,6 +94,10 @@ public class SparkSQLExecutionContext implements ExecutionContext {
   @Override
   public void start(SparkListenerJobStart jobStart) {
     log.debug("SparkListenerJobStart - executionId: " + executionId);
+    if (usingSqlEvents.get()) {
+      log.debug("Using SQL events; returning");
+      return;
+    }
     jobId = Optional.of(jobStart.jobId());
     startEvent(jobStart.time());
   }
@@ -105,15 +110,18 @@ public class SparkSQLExecutionContext implements ExecutionContext {
       exception = ((JobFailed) jobEnd.jobResult()).exception();
     }
     jobId = Optional.of(jobEnd.jobId());
+
+    // We still want to use SparkListenerJobEnd if event is failed until we implement
+    // https://github.com/OpenLineage/OpenLineage/pull/393#discussion_r768049758
+    if (exception == null && usingSqlEvents.get()) {
+      log.debug("Using SQL events; returning");
+      return;
+    }
+
     endEvent(jobEnd.time(), getEventType(jobEnd.jobResult()), exception);
   }
 
   void startEvent(Long time) {
-    if (!started.compareAndSet(false, true)) {
-      log.debug("Start event already emitted: returning");
-      return;
-    }
-
     if (queryExecution == null) {
       log.info("No execution info {}", queryExecution);
       return;
@@ -124,6 +132,8 @@ public class SparkSQLExecutionContext implements ExecutionContext {
 
     PartialFunction<LogicalPlan, List<OutputDataset>> planTraversal =
         getPlanTraversal(outputVisitor);
+
+    log.warn(queryExecution.optimizedPlan().toString());
     List<OutputDataset> outputDatasets =
         planTraversal.isDefinedAt(queryExecution.optimizedPlan())
             ? planTraversal.apply(queryExecution.optimizedPlan())
@@ -144,16 +154,19 @@ public class SparkSQLExecutionContext implements ExecutionContext {
                 buildRun(
                     buildRunFacets(
                         buildParentFacet(),
-                        new SimpleImmutableEntry(
-                            "spark.logicalPlan",
-                            buildLogicalPlanFacet(queryExecution.optimizedPlan())),
-                        new SimpleImmutableEntry("spark_unknown", unknownFacet),
+                        //                        new SimpleImmutableEntry(
+                        //                            "spark.logicalPlan",
+                        //
+                        // buildLogicalPlanFacet(queryExecution.optimizedPlan())),
+                        //                        new SimpleImmutableEntry("spark_unknown",
+                        // unknownFacet),
                         new SimpleImmutableEntry(
                             "spark_version", new SparkVersionFacet(SparkSession.active())))))
             .job(buildJob(queryExecution))
             .build();
 
     log.debug("Posting event for start {}: {}", executionId, event);
+    context.getPreviousEvents().add(event);
     eventEmitter.emit(event);
   }
 
@@ -201,6 +214,7 @@ public class SparkSQLExecutionContext implements ExecutionContext {
       log.debug("Physical plan executed {}", queryExecution.executedPlan().toJSON());
     }
 
+    log.warn(queryExecution.optimizedPlan().toString());
     PartialFunction<LogicalPlan, List<OutputDataset>> outputVisitor =
         PlanUtils.merge(context.getOutputDatasetQueryPlanVisitors());
     PartialFunction<LogicalPlan, List<OutputDataset>> planTraversal =
@@ -227,17 +241,20 @@ public class SparkSQLExecutionContext implements ExecutionContext {
                 buildRun(
                     buildRunFacets(
                         buildParentFacet(),
-                        new SimpleImmutableEntry(
-                            "spark.logicalPlan", buildLogicalPlanFacet(queryExecution.logical())),
+                        //                        new SimpleImmutableEntry(
+                        //                            "spark.logicalPlan",
+                        // buildLogicalPlanFacet(queryExecution.logical())),
                         new SimpleImmutableEntry(
                             "spark.exception", buildJobErrorFacet(eventType, exception)),
-                        new SimpleImmutableEntry("spark_unknown", unknownFacet),
+                        //                        new SimpleImmutableEntry("spark_unknown",
+                        // unknownFacet),
                         new SimpleImmutableEntry(
                             "spark_version", new SparkVersionFacet(SparkSession.active())))))
             .job(buildJob(queryExecution))
             .build();
 
     log.debug("Posting event for end {}: {}", executionId, event);
+    context.getPreviousEvents().add(event);
     eventEmitter.emit(event);
   }
 
