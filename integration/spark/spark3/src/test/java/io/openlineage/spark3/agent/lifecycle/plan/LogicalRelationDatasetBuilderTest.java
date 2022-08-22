@@ -1,3 +1,8 @@
+/*
+/* Copyright 2018-2022 contributors to the OpenLineage project
+/* SPDX-License-Identifier: Apache-2.0
+*/
+
 package io.openlineage.spark3.agent.lifecycle.plan;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,7 +31,7 @@ import org.apache.spark.sql.internal.SessionState;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-public class LogicalRelationDatasetBuilderTest {
+class LogicalRelationDatasetBuilderTest {
 
   private static final String SOME_VERSION = "version_1";
   OpenLineageContext openLineageContext = mock(OpenLineageContext.class);

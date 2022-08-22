@@ -1,4 +1,6 @@
-# SPDX-License-Identifier: Apache-2.0.
+# Copyright 2018-2022 contributors to the OpenLineage project
+# SPDX-License-Identifier: Apache-2.0
+
 import datetime
 import logging
 import uuid
@@ -27,7 +29,7 @@ from openlineage.common.models import (
 )
 from openlineage.common.sql import DbTableMeta
 from openlineage.airflow import DAG
-from openlineage.airflow import __version__ as OPENLINEAGE_AIRFLOW_VERSION
+from openlineage.airflow.version import __version__ as OPENLINEAGE_AIRFLOW_VERSION
 from openlineage.airflow.extractors import (
     BaseExtractor, TaskMetadata
 )

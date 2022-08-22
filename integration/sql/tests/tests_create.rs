@@ -1,3 +1,6 @@
+// Copyright 2018-2022 contributors to the OpenLineage project
+// SPDX-License-Identifier: Apache-2.0
+
 use openlineage_sql::SqlMeta;
 
 #[macro_use]
@@ -33,6 +36,18 @@ fn test_create_table_like() {
         }
     )
 }
+
+#[test]
+fn test_create_table_clone() {
+    assert_eq!(
+        test_sql("CREATE OR REPLACE TABLE new CLONE original"),
+        SqlMeta {
+            in_tables: table("original"),
+            out_tables: table("new")
+        }
+    )
+}
+
 
 #[test]
 fn test_create_and_insert() {

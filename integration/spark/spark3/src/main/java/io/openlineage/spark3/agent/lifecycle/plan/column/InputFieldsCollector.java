@@ -1,3 +1,8 @@
+/*
+/* Copyright 2018-2022 contributors to the OpenLineage project
+/* SPDX-License-Identifier: Apache-2.0
+*/
+
 package io.openlineage.spark3.agent.lifecycle.plan.column;
 
 import io.openlineage.spark.agent.lifecycle.Rdds;
@@ -30,6 +35,7 @@ class InputFieldsCollector {
   static void collect(
       OpenLineageContext context, LogicalPlan plan, ColumnLevelLineageBuilder builder) {
     discoverInputsFromNode(context, plan, builder);
+    CustomCollectorsUtils.collectInputs(plan, builder);
 
     // hacky way to replace `plan instanceof UnaryNode` which fails for Spark 3.2.1
     // because of java.lang.IncompatibleClassChangeError: UnaryNode, but class was expected
