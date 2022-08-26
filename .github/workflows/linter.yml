@@ -52,12 +52,10 @@ jobs:
       - name: Lint Code Base
         uses: github/super-linter@v4
         env:
-          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
           LINTER_RULES_PATH: /.github/workflows
           JAVA_FILE_NAME: checkstyle_checks.xml
           VALIDATE_JAVA: true
-          PYTHON_PYLINT_CONFIG_FILE: python-lint
-          VALIDATE_PYTHON_PYLINT: true

@@ -1,4 +1,7 @@
-/* SPDX-License-Identifier: Apache-2.0 */
+/*
+/* Copyright 2018-2022 contributors to the OpenLineage project
+/* SPDX-License-Identifier: Apache-2.0
+*/
 
 package io.openlineage.spark.agent;
 
@@ -32,6 +35,7 @@ public class ArgumentParser {
   private final String parentRunId;
   private final Optional<String> apiKey;
   private final Optional<Map<String, String>> urlParams;
+  private final boolean consoleMode;
 
   public static ArgumentParser parse(String clientUrl) {
     URI uri = URI.create(clientUrl);
@@ -52,7 +56,7 @@ public class ArgumentParser {
         String.format(
             "%s/api/%s/namespaces/%s/jobs/%s/runs/%s", host, version, namespace, jobName, runId));
 
-    return new ArgumentParser(host, version, namespace, jobName, runId, apiKey, urlParams);
+    return new ArgumentParser(host, version, namespace, jobName, runId, apiKey, urlParams, false);
   }
 
   public static UUID getRandomUuid() {
@@ -75,7 +79,7 @@ public class ArgumentParser {
   private static Optional<Map<String, String>> getUrlParams(List<NameValuePair> nameValuePairList) {
     final Map<String, String> urlParams = new HashMap<String, String>();
     nameValuePairList.stream()
-        .filter(pair -> !(pair.getName().equals("api_key")))
+        .filter(pair -> !"api_key".equals(pair.getName()))
         .forEach(pair -> urlParams.put(pair.getName(), pair.getValue()));
 
     return urlParams.isEmpty() ? Optional.empty() : Optional.ofNullable(urlParams);
@@ -102,6 +106,6 @@ public class ArgumentParser {
 
   private static ArgumentParser getDefaultArguments() {
     return new ArgumentParser(
-        "", "v1", "default", "default", null, Optional.empty(), Optional.empty());
+        "", "v1", "default", "default", null, Optional.empty(), Optional.empty(), false);
   }
 }

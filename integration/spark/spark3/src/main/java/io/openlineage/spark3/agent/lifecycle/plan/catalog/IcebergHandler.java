@@ -1,12 +1,16 @@
-/* SPDX-License-Identifier: Apache-2.0 */
+/*
+/* Copyright 2018-2022 contributors to the OpenLineage project
+/* SPDX-License-Identifier: Apache-2.0
+*/
 
 package io.openlineage.spark3.agent.lifecycle.plan.catalog;
 
-import io.openlineage.spark.agent.facets.TableProviderFacet;
+import io.openlineage.client.OpenLineage;
 import io.openlineage.spark.agent.util.DatasetIdentifier;
 import io.openlineage.spark.agent.util.PathUtils;
 import io.openlineage.spark.agent.util.ScalaConversionUtils;
 import io.openlineage.spark.agent.util.SparkConfUtils;
+import io.openlineage.spark.api.OpenLineageContext;
 import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
@@ -17,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.fs.Path;
 import org.apache.iceberg.CatalogProperties;
 import org.apache.iceberg.spark.SparkCatalog;
+import org.apache.iceberg.spark.SparkSessionCatalog;
 import org.apache.iceberg.spark.source.SparkTable;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.catalyst.analysis.NoSuchTableException;
@@ -25,6 +30,15 @@ import org.apache.spark.sql.connector.catalog.TableCatalog;
 
 @Slf4j
 public class IcebergHandler implements CatalogHandler {
+
+  private final OpenLineageContext context;
+
+  private static final String TYPE = "type";
+
+  public IcebergHandler(OpenLineageContext context) {
+    this.context = context;
+  }
+
   @Override
   public boolean hasClasses() {
     try {
@@ -38,7 +52,7 @@ public class IcebergHandler implements CatalogHandler {
 
   @Override
   public boolean isClass(TableCatalog tableCatalog) {
-    return tableCatalog instanceof SparkCatalog;
+    return (tableCatalog instanceof SparkCatalog) || (tableCatalog instanceof SparkSessionCatalog);
   }
 
   @Override
@@ -47,8 +61,7 @@ public class IcebergHandler implements CatalogHandler {
       TableCatalog tableCatalog,
       Identifier identifier,
       Map<String, String> properties) {
-    SparkCatalog sparkCatalog = (SparkCatalog) tableCatalog;
-    String catalogName = sparkCatalog.name();
+    String catalogName = tableCatalog.name();
 
     String prefix = String.format("spark.sql.catalog.%s", catalogName);
     Map<String, String> conf =
@@ -64,18 +77,18 @@ public class IcebergHandler implements CatalogHandler {
                     Map.Entry::getValue));
 
     log.info(catalogConf.toString());
-    if (catalogConf.isEmpty() || !catalogConf.containsKey("type")) {
+    if (catalogConf.isEmpty() || !catalogConf.containsKey(TYPE)) {
       throw new UnsupportedCatalogException(catalogName);
     }
-    log.info(catalogConf.get("type"));
-    switch (catalogConf.get("type")) {
+    log.info(catalogConf.get(TYPE));
+    switch (catalogConf.get(TYPE)) {
       case "hadoop":
         return getHadoopIdentifier(catalogConf, identifier.toString());
       case "hive":
         return getHiveIdentifier(
             session, catalogConf.get(CatalogProperties.URI), identifier.toString());
       default:
-        throw new UnsupportedCatalogException(catalogConf.get("type"));
+        throw new UnsupportedCatalogException(catalogConf.get(TYPE));
     }
   }
 
@@ -87,7 +100,7 @@ public class IcebergHandler implements CatalogHandler {
   @SneakyThrows
   private DatasetIdentifier getHiveIdentifier(
       SparkSession session, @Nullable String confUri, String table) {
-    table = String.format("/%s", table);
+    String slashPrefixedTable = String.format("/%s", table);
     URI uri;
     if (confUri == null) {
       uri =
@@ -96,22 +109,27 @@ public class IcebergHandler implements CatalogHandler {
     } else {
       uri = new URI(confUri);
     }
-    return PathUtils.fromPath(new Path(PathUtils.enrichHiveMetastoreURIWithTableName(uri, table)));
+    return PathUtils.fromPath(
+        new Path(PathUtils.enrichHiveMetastoreURIWithTableName(uri, slashPrefixedTable)));
   }
 
-  public Optional<TableProviderFacet> getTableProviderFacet(Map<String, String> properties) {
+  @Override
+  public Optional<OpenLineage.StorageDatasetFacet> getStorageDatasetFacet(
+      Map<String, String> properties) {
     String format = properties.getOrDefault("format", "");
-    return Optional.of(new TableProviderFacet("iceberg", format.replace("iceberg/", "")));
+    return Optional.of(
+        context.getOpenLineage().newStorageDatasetFacet("iceberg", format.replace("iceberg/", "")));
   }
 
   @SneakyThrows
+  @Override
   public Optional<String> getDatasetVersion(
       TableCatalog tableCatalog, Identifier identifier, Map<String, String> properties) {
-    SparkCatalog sparkCatalog = (SparkCatalog) tableCatalog;
     SparkTable table;
     try {
-      table = sparkCatalog.loadTable(identifier);
-    } catch (NoSuchTableException ex) {
+      table = (SparkTable) tableCatalog.loadTable(identifier);
+    } catch (NoSuchTableException | ClassCastException e) {
+      log.error("Failed to load table from catalog: {}", identifier, e);
       return Optional.empty();
     }
 

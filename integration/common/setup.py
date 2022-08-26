@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #
-# SPDX-License-Identifier: Apache-2.0.
+# Copyright 2018-2022 contributors to the OpenLineage project
+# SPDX-License-Identifier: Apache-2.0
 #
 # -*- coding: utf-8 -*-
 
@@ -9,7 +10,7 @@ from setuptools import find_namespace_packages, setup
 with open("README.md") as readme_file:
     readme = readme_file.read()
 
-__version__ = "0.10.0"
+__version__ = "0.13.0"
 
 requirements = [
     "attrs>=19.3.0",
@@ -35,6 +36,9 @@ extras_require = {
     "great_expectations": [
         "great_expectations>=0.13.26",
         "sqlalchemy>=1.3.24"
+    ],
+    "redshift": [
+        "boto3>=1.15.0"
     ],
     "tests": [
         "pytest",
