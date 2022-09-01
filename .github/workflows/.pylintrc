@@ -76,7 +76,7 @@ limit-inference-results=100
 # usually to register additional checkers.
 load-plugins=pylintfileheader
 
-file-header-path=pylint.header
+file-header=# Copyright 2018-2022 contributors to the OpenLineage project \n# SPDX-License-Identifier: Apache-2.0\n
 
 # Pickle collected data for later comparisons.
 persistent=yes
