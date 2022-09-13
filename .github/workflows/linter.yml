@@ -36,7 +36,7 @@ jobs:
     ##################
     steps:
       - name: Install Dependencies
-        run: pip install pylintfileheader
+        run: python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps pylint-header-checker
       ##########################
       # Checkout the code base #
       ##########################
