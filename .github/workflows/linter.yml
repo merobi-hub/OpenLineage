@@ -36,7 +36,7 @@ jobs:
     ##################
     steps:
       - name: Install Dependencies
-        run: pip install -i https://test.pypi.org/simple/ pylint-header-checker-MEROBI
+        run: pip install -i https://test.pypi.org/simple/ pylint-header-checker==0.0.1
       ##########################
       # Checkout the code base #
       ##########################
