@@ -74,9 +74,7 @@ limit-inference-results=100
 
 # List of plugins (as comma separated values of python module names) to load,
 # usually to register additional checkers.
-load-plugins=header_checker
-
-file-header=# Copyright 2018-2022 contributors to the OpenLineage project \n# SPDX-License-Identifier: Apache-2.0\n
+load-plugins=HeaderChecker
 
 # Pickle collected data for later comparisons.
 persistent=yes
