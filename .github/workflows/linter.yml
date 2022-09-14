@@ -36,7 +36,9 @@ jobs:
     ##################
     steps:
       - name: Install Dependencies
-        run: pip install -i https://test.pypi.org/simple/ headerchecker
+        run: |
+        python -m pip install --upgrade pip
+        pip install -i https://test.pypi.org/simple/ headerchecker
       ##########################
       # Checkout the code base #
       ##########################
@@ -61,4 +63,5 @@ jobs:
           VALIDATE_JAVA: true
           PYTHON_PYLINT_CONFIG_FILE: pylintrc
           VALIDATE_PYTHON_PYLINT: true
+          LOG_FILE: /.github/workflows/super-linter.log
           LOG_LEVEL: VERBOSE
