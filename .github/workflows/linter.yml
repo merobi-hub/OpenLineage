@@ -61,5 +61,3 @@ jobs:
           VALIDATE_JAVA: true
           PYTHON_PYLINT_CONFIG_FILE: pylintrc
           VALIDATE_PYTHON_PYLINT: true
-          LOG_FILE: /.github/workflows/super-linter.log
-          LOG_LEVEL: VERBOSE
