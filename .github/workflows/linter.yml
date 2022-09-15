@@ -35,8 +35,8 @@ jobs:
     # Load all steps #
     ##################
     steps:
-      - name: Install Dependencies
-        run: pip install -i https://test.pypi.org/simple/ headerchecker
+      # - name: Install Dependencies
+      #   run: pip install -i https://test.pypi.org/simple/ headerchecker
       ##########################
       # Checkout the code base #
       ##########################
