@@ -1,9 +1,9 @@
-from typing import TYPE_CHECKING
+# from typing import TYPE_CHECKING
 from astroid import nodes
 from pylint.checkers import BaseRawFileChecker
 
-if TYPE_CHECKING:
-    from pylint.lint import PyLinter
+# if TYPE_CHECKING:
+#     from pylint.lint import PyLinter
 
 class HeaderChecker(BaseRawFileChecker):
     name = 'header_checker'
@@ -26,5 +26,5 @@ class HeaderChecker(BaseRawFileChecker):
             if search == -1:
                 self.add_message('no-header', 1)
 
-def register(linter: 'PyLinter') -> None:
-  linter.register_checker(HeaderChecker(linter))
+# def register(linter: 'PyLinter') -> None:
+#   linter.register_checker(HeaderChecker(linter))

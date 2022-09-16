@@ -39,7 +39,7 @@ jobs:
           readarray -t files <<<"$(jq -r '.[]' <<<'${{ steps.files.outputs.all }}')"
           for file in ${files[@]}; do 
             if [[ ($file == *".py") ]]; then
-              eval pylint --rcfile=.github/workflows/pylintrc -r y -v ${file};
+              eval pylint --rcfile .github/workflows/pylintrc -r y -v ${file};
             fi
           done
 
