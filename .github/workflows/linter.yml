@@ -40,13 +40,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install pylint
 
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Get changed files
-        uses: jitterbit/get-changed-files@v1
+      - uses: jitterbit/get-changed-files@v1
         with:
           format: 'space-delimited'
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -54,7 +52,8 @@ jobs:
       - name: Verify files changed
         run: cat ${{ steps.files.outputs.all }}
 
-      - name: Lint files with Pylint    
+      - name: Lint files with Pylint
+        id: lint    
         run: |
           for file in ${{ steps.files.outputs.all }}; do 
             if [[ ($file == *".py") ]]; then
