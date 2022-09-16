@@ -50,8 +50,6 @@ jobs:
         with:
           format: 'space-delimited'
           token: ${{ secrets.GITHUB_TOKEN }} 
- 
-      - name: Run Pylint
         run: |
           for file in ${{ steps.files.outputs.all }}; do 
             if [[ $file == *".py" ]]; then
