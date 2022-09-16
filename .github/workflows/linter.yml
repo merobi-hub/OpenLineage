@@ -44,7 +44,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: jitterbit/get-changed-files@v1
+      - id: files
+        uses: jitterbit/get-changed-files@v1
         with:
           format: 'space-delimited'
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -52,9 +53,7 @@ jobs:
       - name: Verify files changed
         run: cat ${{ steps.files.outputs.all }}
 
-      - name: Lint files with Pylint
-        id: lint    
-        run: |
+      - run: |
           for file in ${{ steps.files.outputs.all }}; do 
             if [[ ($file == *".py") ]]; then
               eval pylint --rcfile .github/workflows/pylintrc ${{ file }};
