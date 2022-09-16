@@ -48,15 +48,14 @@ jobs:
       - name: Get changed files
         uses: jitterbit/get-changed-files@v1
         with:
-          format: 'json'
+          format: 'space-delimited'
           token: ${{ secrets.GITHUB_TOKEN }} 
       
       - name: Run Pylint
         run: |
-          for files in ${{ steps.files.outputs.all }} 
-          do 
-            if [[ $files == *".py" ]]; then
-              eval pylint --rcfile .github/workflows/pylintrc ${{ files }};
+          for file in ${{ steps.files.outputs.all }}; do 
+            if [[ $file == *".py" ]]; then
+              eval pylint --rcfile .github/workflows/pylintrc ${{ file }};
             fi
           done
 
