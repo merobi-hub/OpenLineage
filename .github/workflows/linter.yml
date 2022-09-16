@@ -57,7 +57,7 @@ jobs:
       - name: Lint files with Pylint    
         run: |
           for file in ${{ steps.files.outputs.all }}; do 
-            if [[ $file == *".py" ]]; then
+            if [[ ($file == *".py") ]]; then
               eval pylint --rcfile .github/workflows/pylintrc ${{ file }};
             fi
           done
