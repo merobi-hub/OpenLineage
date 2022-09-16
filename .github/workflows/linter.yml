@@ -19,6 +19,7 @@ jobs:
           pip install pylint==2.14.3
           pip install astroid==2.11.6
           pip install typing_extensions==4.0.1
+          pip install importlib-metadata==4.11.3
 
       - uses: actions/checkout@v3
         with:
@@ -38,6 +39,8 @@ jobs:
           readarray -t files <<<"$(jq -r '.[]' <<<'${{ steps.files.outputs.all }}')"
           for file in ${files[@]}; do 
             if [[ ($file == *".py") ]]; then
-              eval pylint --rcfile .github/workflows/pylintrc -r y -v ${file};
+              eval pylint --load-plugins=headerchecker -d all -e no-header -r y -v ${file};
             fi
           done
+
+# eval pylint --rcfile .github/workflows/pylintrc -r y -v ${file};
