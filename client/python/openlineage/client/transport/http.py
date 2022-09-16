@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0.
+
 import logging
 from urllib.parse import urljoin
 
