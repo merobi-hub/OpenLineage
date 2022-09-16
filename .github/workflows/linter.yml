@@ -47,16 +47,17 @@ jobs:
       - id: files
         uses: jitterbit/get-changed-files@v1
         with:
-          format: 'space-delimited'
+          format: 'json'
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify files changed
         run: cat ${{ steps.files.outputs.all }}
 
       - run: |
-          for file in ${{ steps.files.outputs.all }}; do 
+          readarray -t files <<<"$(jq -r '.[]' <<<'${{ steps.files.outputs.all }}')"
+          for file in ${files[@]}; do 
             if [[ ($file == *".py") ]]; then
-              eval pylint --rcfile .github/workflows/pylintrc ${{ file }};
+              eval pylint --rcfile .github/workflows/pylintrc ${file};
             fi
           done
 
