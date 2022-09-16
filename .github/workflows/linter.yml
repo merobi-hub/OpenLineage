@@ -53,11 +53,10 @@ jobs:
       
       - name: Run Pylint
         run: |
-          changed_file = ''
-          for $changed_file in ${{ steps.files.outputs.all }} 
+          for file in ${{ steps.files.outputs.all }} 
           do 
-            if [[ $changed_file == *".py" ]]; then
-              eval pylint --rcfile .github/workflows/pylintrc ${{ changed_file }};
+            if [[ $file == *".py" ]]; then
+              eval pylint --rcfile .github/workflows/pylintrc ${{ file }};
             fi
           done
 
