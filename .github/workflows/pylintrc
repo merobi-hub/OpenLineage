@@ -76,7 +76,7 @@ limit-inference-results=100
 # usually to register additional checkers.
 load-plugins=
       pylint.extensions.typing,
-      headerchecker
+      .github/workflows/headerchecker
 
 # Pickle collected data for later comparisons.
 persistent=yes
