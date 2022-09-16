@@ -41,13 +41,13 @@ jobs:
           pip install pylint
       
       - name: Checkout code
-      - uses: actions/checkout@v3
-      - with:
+        uses: actions/checkout@v3
+        with:
           fetch-depth: 0
       
       - name: Get changed files
-      - uses: jitterbit/get-changed-files@v1
-      - with:
+        uses: jitterbit/get-changed-files@v1
+        with:
           format: 'json'
           token: ${{ secrets.GITHUB_TOKEN }} 
       
