@@ -49,7 +49,12 @@ jobs:
         uses: jitterbit/get-changed-files@v1
         with:
           format: 'space-delimited'
-          token: ${{ secrets.GITHUB_TOKEN }} 
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify files changed
+        run: cat ${{ steps.files.outputs.all }}
+
+      - name: Lint files with Pylint    
         run: |
           for file in ${{ steps.files.outputs.all }}; do 
             if [[ $file == *".py" ]]; then
