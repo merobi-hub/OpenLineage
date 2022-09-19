@@ -42,7 +42,7 @@ jobs:
           for file in ${files[@]}; do 
             if [[ ($file == *".py") ]]; then
               if ! grep -q Copyright "$file"; then
-                $ok=0
+                ok=0
                 echo "Copyright header not found in $file"
               fi
             fi
