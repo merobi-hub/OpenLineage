@@ -37,17 +37,17 @@ jobs:
 
       - name: Check for headers
         run: |
-          ok=true
+          ok=1
           readarray -t files <<<"$(jq -r '.[]' <<<'${{ steps.files.outputs.all }}')"
           for file in ${files[@]}; do 
             if [[ ($file == *".py") ]]; then
               if ! grep -q Copyright "$file"; then
-                $ok=false
+                $ok=0
                 echo "Copyright header not found in $file"
               fi
             fi
           done
-          if [[ $ok == false ]]; then
+          if [[ $ok == 0 ]]; then
             exit 1
           fi           
 
