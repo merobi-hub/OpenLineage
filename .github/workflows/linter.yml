@@ -35,19 +35,25 @@ jobs:
           format: 'json'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: |
+      - name: Check for headers
+        run: |
           ok = 1
           readarray -t files <<<"$(jq -r '.[]' <<<'${{ steps.files.outputs.all }}')"
           for file in ${files[@]}; do 
             if [[ ($file == *".py") ]]; then
               if ! grep -q Copyright "$file";
-                ok = 0
+                $ok = 0
                 echo "Copyright header not found in $file"
             fi
           done
+        run: |
+          if [[ $ok = 0 ]]; then
+            exit 1
+          fi 
+          done
 
-      - name: Fail condition
-        if: ${{ ok }} = 0
-        run: exit 1              
+      # - name: Fail condition
+      #   if: ${{ ok }} = 0
+      #   run: exit 1              
 
 
