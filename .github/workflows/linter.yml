@@ -36,10 +36,18 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - run: |
+          ok = 1
           readarray -t files <<<"$(jq -r '.[]' <<<'${{ steps.files.outputs.all }}')"
           for file in ${files[@]}; do 
             if [[ ($file == *".py") ]]; then
-              eval pylint --rcfile .github/workflows/pylintrc -r y -v ${file};
+              if ! grep -q Copyright "$file";
+                ok = 0
+                echo "Copyright header not found in $file"
             fi
           done
+
+      - name: Fail condition
+        if: ${{ ok = 0 }}
+        run: exit 1              
+
 
