@@ -1,4 +1,4 @@
-# flake8: noqa
+
 from typing import Type
 
 from openlineage.client.transport.noop import NoopTransport
