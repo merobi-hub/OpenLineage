@@ -37,13 +37,12 @@ jobs:
                 ok=0
                 echo "Copyright header not found in $file"
               fi
-            fi
-          done
-            if [[ ($file == *".java") ]]; then
-              if ! grep -q Copyright "$file"; then
-                ok=0
-                echo "Copyright header not found in $file"
-              fi
+            else 
+              if [[ ($file == *".java") ]]; then
+                if ! grep -q Copyright "$file"; then
+                  ok=0
+                  echo "Copyright header not found in $file"
+                fi
             fi
           if [[ $ok == 0 ]]; then
             exit 1
