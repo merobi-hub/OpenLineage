@@ -45,7 +45,7 @@ jobs:
                 $ok=false
                 echo "Copyright header not found in $file"
             fi
-          if [[ $ok = false ]]; then
+          if [[ $ok == false ]]; then
             exit 1
           done           
 
