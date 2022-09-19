@@ -13,13 +13,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pylint==2.14.3
-          pip install astroid==2.11.6
-          pip install typing_extensions==4.0.1
-          pip install importlib-metadata==4.11.3
+      # - name: Install dependencies
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install pylint==2.14.3
+      #     pip install astroid==2.11.6
+      #     pip install typing_extensions==4.0.1
+      #     pip install importlib-metadata==4.11.3
 
       - uses: actions/checkout@v3
         with:
