@@ -47,7 +47,7 @@ jobs:
           done
 
       - name: Fail condition
-        if: ${{ ok = 0 }}
+        if: ${{ ok }} = 0
         run: exit 1              
 
 
