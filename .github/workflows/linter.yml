@@ -44,9 +44,11 @@ jobs:
               if ! grep -q Copyright "$file";
                 $ok=false
                 echo "Copyright header not found in $file"
+              fi
             fi
+          done
           if [[ $ok == false ]]; then
             exit 1
-          done           
+          fi           
 
 
