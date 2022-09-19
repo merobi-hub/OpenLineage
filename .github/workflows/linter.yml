@@ -41,9 +41,9 @@ jobs:
           readarray -t files <<<"$(jq -r '.[]' <<<'${{ steps.files.outputs.all }}')"
           for file in ${files[@]}; do 
             if [[ ($file == *".py") ]]; then
-              if ! grep -q Copyright "$file";
+              if ! grep -q Copyright "$file"; then
                 $ok=false
-                echo "Copyright header not found in $file";
+                echo "Copyright header not found in $file"
               fi
             fi
           done
